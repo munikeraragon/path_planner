@@ -1,7 +1,7 @@
 '''
-  This module server as a deserializes map loader.
-  This loader assumes that input map_objects will contain
-  polar coordintes and that they will be in json format. 
+  This module deserializer map_objects.
+  The Loader assumes that the input will contain
+  polar coordinates in json format. 
 ''' 
 import json
 
@@ -21,5 +21,3 @@ class Loader():
     fly_zone = self.map_object['flyZones'][0]
     boundary = fly_zone['boundaryPoints']
     return boundary
-
-
