@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 from .loader import Loader
 
 class Visual():
-  def __init__(self, file):
-    self.map = Loader(file)
+  def __init__(self, loader):
+    self.map = loader
 
   def draw(self):
     # deserialize map
@@ -25,17 +25,13 @@ class Visual():
     self.plot_waypoints(waypoints)
     self.plot_boundary(boundary)
 
-  def simulate(self):
-    for i in range(0, 1000, 100):
-      plt.plot(i,i, "xc")
-      plt.pause(0.001)
-
+  def simulate(self, algorithim):
+    algorithim.simulate(plt)
     plt.show()
 
   ''' 
-    The following methods should only be call inside this module
+        The following methods should only be call inside this module
   ''' 
-  
   def plot_obstacles(self, obstacles):
     x_coordinates, y_coordinates = self.project_coordinates(obstacles)
     radii = list(map(lambda point: point['radius']/3, obstacles))
