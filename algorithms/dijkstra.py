@@ -11,10 +11,10 @@ author: Muniker Aragon
 
 '''     Descriptipn
 
-    - Helps you find the shortest path in a graph.
+    - Dijkstra algorithim finds shortest path in a graph.
     - The vertices of the graph can be locations and the edges the distance between them.
     - The edges can also be viewed as having a --cost--, which is used to find the shortest or 
-      the most --cost-- eficient path.  
+      the most --cost-- efficient path.  
     - Algorithim will try to find short cuts in the process.
     - I need to create graph model that that represents grid Visual.
 '''
@@ -61,71 +61,95 @@ author: Muniker Aragon
 class Dijkstra:
     def __init__(self, loader):
         self.map = loader 
-        self.visited = [] # store visited nodes
-        self.priority_queue = [] # store nodes that need to be visited
+        self.visited_nodes = {} # store visited nodes
+        self.priority_queue = {} # store nodes that need to be visited
 
         # starting index
-        self.x_start = 0
-        self.y_start = 0
+        self.x_start = 5
+        self.y_start = 5
 
         # grid size
         self.x_min = 0
-        self.x_max = 4
+        self.x_max = 60
         self.y_min = 0
-        self.y_max = 4
+        self.y_max = 60
+
+        # goal index
+        self.x_goal = 20
+        self.y_goal = 10
 
     class Node:
-        def __init__(self, x, y, cost, parent_node):
+        def __init__(self, x, y, cost, parent_key):
             self.x = x
             self.y = y
             self.cost = cost
-            self.parent_node = parent_node
+            self.parent_key = parent_key
+        
+        def __str__(self):
+            return str(self.x) + "," + str(self.y) + "," + str(self.cost) + "," + str(self.parent_key)
 
-
-    def plan(self):
+    def run(self, plt):
+        print('Starting algorithim')
+        # staring node has with cost of 0
+        starting_node = self.Node(self.x_start, self.y_start, 0, None) 
+        starting_key = str(self.x_start) + str(self.y_start)
         # add starting node to priority queue
-        priority_queue.append(Node(self.x_start, y_start, 0, -1))
+        self.priority_queue[starting_key] = starting_node
+        
+        while len(self.priority_queue) != 0:
+            # take node with minimal distance from priority queue and process it
+            keys = list(self.priority_queue.keys())
+            current_node = self.priority_queue.pop(keys[0])
+            # inspect neighbors node. Calculate distance of the neighbors to the starting node
+            self.inspect_neighbords(current_node)
 
-        # inspect neighbors node. Calculate distance of the neighbors to the starting node
-        # edge_distance + parent_distance
-        while len(priority_queue) not 0:
-            # pop from priority queue
-            # node = pop 
-            inspect_neighbords(node)
-    
-    def inspect_neighbors(self, node):
-        # inspect adjacent neighbords
-        up = [node.x, node.y+1]
-        down = [node.x, node.y-1]
-        left = [node.x-1, node.y]
-        right = [node.x+1, node.y]
-        adjacent_nodes = [up, down, left, right]
+            # plot visited node
+            plt.plot(current_node.x, current_node.y, 'xk')
+            plt.pause(0.001)
 
-        for neighbords in adjacent_set:
-            if is_valid(neighbord):
-                cost = node.cost + 1
-                if is_visited(neighbord):
-                    # check if cost is less and replace in visited
-                else:
-                    # add node to visite node
-                # add node to priority queue
+            # check if destination has been reached
+            if current_node.x is self.x_goal and current_node.y is self.y_goal:
+                self.plot_final_route(plt, current_node)
+                print('goal has been reached')
+                break
 
-    def is_valid(self, neighbord):
-        if inside_grid(neighbord) and not obstacle(neighbord): 
-            return neighbord
-        else:
-            return None
-    def inside_grid(self, node):
-        return node.x < x_max and node.x > x_min and node.y < y_max and node.y > y_min
-    def obstacle(self, node):
+        print('Finished algorithim')
 
+    def inspect_neighbords(self, node):
+        parent_key = str(node.x) + str(node.y)
+        up = self.Node(node.x, node.y+1, node.cost+1, parent_key)
+        down = self.Node(node.x, node.y-1, node.cost+1, parent_key)
+        left = self.Node(node.x-1, node.y, node.cost+1, parent_key)
+        right = self.Node(node.x+1, node.y, node.cost+1, parent_key)
+        neighbord_nodes = [up, down, left, right]
 
+        for neighbord in neighbord_nodes:
+            if self.valid_node(neighbord):
+                key = str(neighbord.x) + str(neighbord.y)
 
+                if key in self.visited_nodes:                           # check if neighbord has been visited
+                    if neighbord.cost < self.visited_nodes[key].cost:   # if cost is less replace node
+                        self.visited_nodes[key] = neighbord
+
+                if key not in self.visited_nodes and key not in self.priority_queue:                       # if neighbord has not been visited
+                    self.priority_queue[key] = neighbord                # add to priority_queue
+        
+        # marked node as visited
+        self.visited_nodes[parent_key] = node
 
 
-    def simulate(self, plt):
-        # begin to run simulation
-        for i in range(0, 1000, 100):
-            print('ploting')
-            plt.plot(i, i, 'xk')
-            plt.pause(2)
+    def valid_node(self, node):
+        within_grid = node.x > self.x_min and node.x < self.x_max and node.y > self.y_min and node.y < self.x_max
+        return within_grid
+
+
+    def plot_final_route(self, plt, node):
+        # base case
+        if node.parent_key is None:
+            return
+        # plot node
+        plt.plot(node.x, node.y, 'xc')
+        plt.pause(0.001)
+        self.plot_final_route(plt, self.visited_nodes[node.parent_key])
+        
+

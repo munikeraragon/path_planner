@@ -24,9 +24,11 @@ class Visual():
     self.plot_obstacles(obstacles)
     self.plot_waypoints(waypoints)
     self.plot_boundary(boundary)
+    plt.show()
 
   def simulate(self, algorithim):
-    algorithim.simulate(plt)
+    plt.grid(True)
+    algorithim.run(plt)
     plt.show()
 
   ''' 

@@ -14,7 +14,7 @@ def main():
     dijkstra = Dijkstra(loader)
     map_visual = Visual(loader)
 
-    map_visual.draw()  # draw map visualization
+    #map_visual.draw()  # draw map visualization
     map_visual.simulate(dijkstra)  # visual will simulate a passed algorithim
 
 
