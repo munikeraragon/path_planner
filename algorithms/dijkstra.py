@@ -58,6 +58,8 @@ author: Muniker Aragon
 
 '''
 
+import math
+
 class Dijkstra:
     def __init__(self, loader):
         self.map = loader 
@@ -121,7 +123,12 @@ class Dijkstra:
         down = self.Node(node.x, node.y-1, node.cost+1, parent_key)
         left = self.Node(node.x-1, node.y, node.cost+1, parent_key)
         right = self.Node(node.x+1, node.y, node.cost+1, parent_key)
-        neighbord_nodes = [up, down, left, right]
+
+        top_right = self.Node(node.x+1, node.y+1, node.cost+math.sqrt(2), parent_key)
+        top_left = self.Node(node.x-1, node.y+1, node.cost+math.sqrt(2), parent_key)
+        bottom_right = self.Node(node.x+1, node.y-1, node.cost+math.sqrt(2), parent_key)
+        bottom_left = self.Node(node.x-1, node.y-1, node.cost+math.sqrt(2), parent_key)
+        neighbord_nodes = [up, down, left, right, top_right, top_left, bottom_right, bottom_left]
 
         for neighbord in neighbord_nodes:
             if self.valid_node(neighbord):
@@ -131,9 +138,9 @@ class Dijkstra:
                     if neighbord.cost < self.visited_nodes[key].cost:   # if cost is less replace node
                         self.visited_nodes[key] = neighbord
 
-                if key not in self.visited_nodes and key not in self.priority_queue:                       # if neighbord has not been visited
-                    self.priority_queue[key] = neighbord                # add to priority_queue
-        
+                if key not in self.visited_nodes and key not in self.priority_queue:    # if neighbord has not been visited
+                    self.priority_queue[key] = neighbord                                # add to priority_queue
+                
         # marked node as visited
         self.visited_nodes[parent_key] = node
 

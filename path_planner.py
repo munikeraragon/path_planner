@@ -5,17 +5,24 @@
 from visual.visual import Visual
 from algorithms.dijkstra import Dijkstra
 from loader import Loader
+import os
 
 
 def main():
-    map_file = 'C:/Users/santi/Desktop/Projects/path_planner/maps/mission_map.json'
+    # create a loader from map 
+    map_file = os.getcwd() + '/maps/mission_map.json'
     loader = Loader(map_file)
 
+    # both the visual module and the algorithim
+    # will use the loader
     dijkstra = Dijkstra(loader)
     map_visual = Visual(loader)
 
     #map_visual.draw()  # draw map visualization
-    map_visual.simulate(dijkstra)  # visual will simulate a passed algorithim
+
+    # pass an algorithim to visual module
+    # and run the simulation
+    map_visual.simulate(dijkstra) 
 
 
 if __name__ == '__main__':
