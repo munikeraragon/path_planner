@@ -58,6 +58,15 @@ author: Muniker Aragon
 
 '''
 
+
+''' Notes:
+    Dijkstra's algorithm is too slow.   
+    I can use "Point inside polygon algorithims" for boundary detection
+    and "Point in cicle algorithms" for obstacle decetion.
+'''
+
+from matplotlib.path import Path
+import numpy as np
 import math
 
 class Dijkstra:
@@ -66,9 +75,12 @@ class Dijkstra:
         self.visited_nodes = {} # store visited nodes
         self.priority_queue = {} # store nodes that need to be visited
 
+        self.boundary = self.boundary_model()
+        self.obstacles = self.obstacle_model()
+
         # starting index
-        self.x_start = 5
-        self.y_start = 5
+        self.x_start = 750
+        self.y_start = 200
 
         # grid size
         self.x_min = 0
@@ -77,8 +89,8 @@ class Dijkstra:
         self.y_max = 60
 
         # goal index
-        self.x_goal = 20
-        self.y_goal = 10
+        self.x_goal = 900
+        self.y_goal = 350
 
     class Node:
         def __init__(self, x, y, cost, parent_key):
@@ -146,8 +158,14 @@ class Dijkstra:
 
 
     def valid_node(self, node):
-        within_grid = node.x > self.x_min and node.x < self.x_max and node.y > self.y_min and node.y < self.x_max
-        return within_grid
+        #within_grid = node.x > self.x_min and node.x < self.x_max and node.y > self.y_min and node.y < self.x_max
+        #return within_grid
+
+        for obstacle in self.obstacles:
+            if obstacle.contains_point((node.x, node.y)):
+                return False
+
+        return self.boundary.contains_point((node.x, node.y))
 
 
     def plot_final_route(self, plt, node):
@@ -158,5 +176,16 @@ class Dijkstra:
         plt.plot(node.x, node.y, 'xc')
         plt.pause(0.001)
         self.plot_final_route(plt, self.visited_nodes[node.parent_key])
-        
+
+    def boundary_model(self):
+        xCoords, yCoords = self.map.boundary()
+        return Path(np.array(list(zip(xCoords,yCoords))))
+
+    def obstacle_model(self):
+        x_coordinates, y_coordinates, radii = self.map.obstacles()
+        obstacles = []
+        for i in range(len(radii)):
+            obstacles.append(Path.circle((x_coordinates[i],y_coordinates[i]), radii[i]))
+        return obstacles
+
 
