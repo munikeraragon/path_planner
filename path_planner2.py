@@ -3,7 +3,7 @@
     the visual module'''
 
 from visual.visual import Visual
-from algorithms.Dijkstra import Dijkstra
+from algorithms.custom import Dijkstra
 from algorithms.Astar import Astar
 from loader import Loader
 import os

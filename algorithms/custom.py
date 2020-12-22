@@ -120,9 +120,8 @@ class Dijkstra:
         self.priority_queue[starting_key] = starting_node
         
         while len(self.priority_queue) != 0:
-            # take node with minimal distance from priority queue and process it
-            keys = list(self.priority_queue.keys())
-            current_node = self.priority_queue.pop(keys[0])
+            # take node with lowest cost from priority queue
+            current_node = self.lowest_cost_node()
             # inspect neighbors node. Calculate distance of the neighbors to the starting node
             self.inspect_neighbords(current_node)
 
@@ -140,15 +139,15 @@ class Dijkstra:
 
     def inspect_neighbords(self, node):
         parent_key = str(node.x) + str(node.y)
-        up = self.Node(node.x, node.y+10, node.cost+10, parent_key)
-        down = self.Node(node.x, node.y-10, node.cost+10, parent_key)
-        left = self.Node(node.x-10, node.y, node.cost+10, parent_key)
-        right = self.Node(node.x+10, node.y, node.cost+10, parent_key)
+        up = self.Node(node.x, node.y+10, node.cost+10+self.target_distance(node.x, node.y), parent_key)
+        down = self.Node(node.x, node.y-10, node.cost+10+self.target_distance(node.x, node.y), parent_key)
+        left = self.Node(node.x-10, node.y, node.cost+10+self.target_distance(node.x, node.y), parent_key)
+        right = self.Node(node.x+10, node.y, node.cost+10+self.target_distance(node.x, node.y), parent_key)
 
-        top_right = self.Node(node.x+10, node.y+10, node.cost+math.sqrt(200), parent_key)
-        top_left = self.Node(node.x-10, node.y+10, node.cost+math.sqrt(200), parent_key)
-        bottom_right = self.Node(node.x+10, node.y-10, node.cost+math.sqrt(200), parent_key)
-        bottom_left = self.Node(node.x-10, node.y-10, node.cost+math.sqrt(200), parent_key)
+        top_right = self.Node(node.x+10, node.y+10, node.cost+math.sqrt(200)+self.target_distance(node.x, node.y), parent_key)
+        top_left = self.Node(node.x-10, node.y+10, node.cost+math.sqrt(200)+self.target_distance(node.x, node.y), parent_key)
+        bottom_right = self.Node(node.x+10, node.y-10, node.cost+math.sqrt(200)+self.target_distance(node.x, node.y), parent_key)
+        bottom_left = self.Node(node.x-10, node.y-10, node.cost+math.sqrt(200)+self.target_distance(node.x, node.y), parent_key)
         neighbord_nodes = [up, down, left, right, top_right, top_left, bottom_right, bottom_left]
         
 
@@ -178,6 +177,12 @@ class Dijkstra:
 
         return self.boundary.contains_point((node.x, node.y))
 
+    def target_distance(self, x, y):
+        # calculate eucledean distance
+        p1 = np.array((x, y))
+        p2 = np.array((self.x_goal, self.y_goal))
+        return np.linalg.norm(p1-p2)
+
 
     def plot_final_route(self, plt, node):
         # base case
@@ -198,5 +203,21 @@ class Dijkstra:
         for i in range(len(radii)):
             obstacles.append(Path.circle((x_coordinates[i],y_coordinates[i]), radii[i]))
         return obstacles
+
+    def lowest_cost_node(self):
+        keys = list(self.priority_queue.keys())
+        lowest_cost = None
+        optimal_key = None
+
+        for key in keys:
+            if not lowest_cost or not optimal_key:
+                lowest_cost = self.priority_queue[key].cost
+                optimal_key = key
+            
+            if self.priority_queue[key].cost < lowest_cost:
+                lowest_cost = self.priority_queue[key].cost
+                optimal_key = key
+
+        return self.priority_queue.pop(optimal_key)
 
 
