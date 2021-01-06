@@ -1,7 +1,5 @@
 '''
-  This module deserializer map_objects.
-  The Loader assumes that the input will contain
-  polar coordinates in json format. 
+  This module deserializes Json map files.
 '''
 
 from mpl_toolkits.basemap import Basemap
@@ -10,82 +8,134 @@ import json
 
 
 class Loader:
-
     def __init__(self, file_path, cartesian=False):
-        self.map_object = json.loads(open(file_path).read())
+        self.map = json.loads(open(file_path).read())
         self.cartesian = cartesian
 
 
+    def start_point(self):
+        '''
+            This method extracts the starting coordinates of a map file.
+        '''
+        starting_coord = self.map['startPoint']
+        project = Basemap(width=12000000,height=9000000,projection='lcc',
+                            resolution='c',lat_1=45.,lat_2=55,lat_0=50,lon_0=-107.)
+
+        if self.cartesian:
+            x_coord, y_coord = starting_coord['x'], starting_coord['y']
+
+        else:
+            x_coord, y_coord= project(starting_coord['longitude'], starting_coord['latitude'])
+            x_coord += -8641750
+            y_coord += -3725600
+
+        return x_coord, y_coord
+
+
+    def target_point(self):
+        '''
+            This method extracts the target coordinates of a map file.
+        '''
+        target_coord = self.map['targetPoint']
+        project = Basemap(width=12000000,height=9000000,projection='lcc',
+                            resolution='c',lat_1=45.,lat_2=55,lat_0=50,lon_0=-107.)
+
+        if self.cartesian:
+            x_coord, y_coord = target_point['x'], target_point['y']
+
+        else:
+            x_coord, y_coord= project(target_point['longitude'], target_point['latitude'])
+            x_coord += -8641750
+            y_coord += -3725600
+
+        return x_coord, y_coord
+
+
     def boundary(self):
-        fly_zone = self.map_object['flyZones'][0]
+        '''
+            This method extracts the boundary coordinates of a map file.
+        '''
+        fly_zone = self.map['flyZones'][0]
         boundary = fly_zone['boundaryPoints']
 
         if self.cartesian:
-            x_coordinates, y_coordinates = self.get_coordinates(boundary)
+            x_coords, y_coords = self.get_coordinates(boundary)
         else:
-            x_coordinates, y_coordinates = self.project_coordinates(boundary)
+            x_coords, y_coords = self.project_coordinates(boundary)
 
-        return x_coordinates, y_coordinates
+        return x_coords, y_coords
 
 
-    def waypoints(self):
-        waypoints = self.map_object['waypoints']
+    def way_points(self):
+        '''
+            This method extracts the waypoints coordinates of a map file.
+        '''
+        way_points = self.map['waypoints']
 
         if self.cartesian:
-            x_coordinates, y_coordinates = self.get_coordinates(waypoints)
+            x_coords, y_coords = self.get_coordinates(way_points)
 
         else: 
-            x_coordinates, y_coordinates = self.project_coordinates(waypoints)
+            x_coords, y_coords = self.project_coordinates(way_points)
 
-        return x_coordinates, y_coordinates
+        return x_coords, y_coords
 
 
     def obstacles(self):
-        obstacles = self.map_object['stationaryObstacles']
+        '''
+            This method extracts the obstacle coordinates of a map file.
+        '''
+        obstacles = self.map['stationaryObstacles']
         radii = list(map(lambda point: point['radius']/3, obstacles))
 
         if self.cartesian:
-            x_coordinates, y_coordinates = self.get_coordinates(obstacles)
+            x_coords, y_coords = self.get_coordinates(obstacles)
 
         else:
-            x_coordinates, y_coordinates = self.project_coordinates(obstacles)
+            x_coords, y_coords = self.project_coordinates(obstacles)
 
-        return x_coordinates, y_coordinates, radii
+        return x_coords, y_coords, radii
 
 
 
     def project_coordinates(self, coordinates):
+        '''
+            This method projects polar coordinates into cartesian.
+        '''
         project = Basemap(width=12000000,height=9000000,projection='lcc',
                             resolution='c',lat_1=45.,lat_2=55,lat_0=50,lon_0=-107.)
-        x_coordinates = []
-        y_coordinates = []
+        x_coords = []
+        y_coords = []
 
         for point in coordinates:
             x_point,y_point = project(point['longitude'], point['latitude'])
-            x_coordinates.append(x_point - 8641750)
-            y_coordinates.append(y_point - 3725600)
+            x_coords += [x_point - 8641750]
+            y_coords += [y_point - 3725600]
 
-        # add coordinate[0] to close polygon when drawing
+        # close polygon drawing by adding coordinate[0]
         x_point,y_point = project(coordinates[0]['longitude'], coordinates[0]['latitude'])
-        x_coordinates.append(x_point - 8641750)
-        y_coordinates.append(y_point - 3725600)
+        x_coords += [x_point - 8641750]
+        y_coords += [y_point - 3725600]
 
-        return x_coordinates, y_coordinates
+        return x_coords, y_coords
 
 
 
     def get_coordinates(self, coordinates):
-        x_coordinates = []
-        y_coordinates = []
+        '''
+            This method separates a cordinate dictionary into an x and y array.
+        '''
+        x_coords = []
+        y_coords = []
 
         for point in coordinates:
-            x_coordinates.append(point['x'])
-            y_coordinates.append(point['y'])
+            x_coords += [point['x']]
+            y_coords += [point['y']]
 
-        # add coordinate[0] to close polygon when drawing
-        x_coordinates.append(coordinates[0]['x'])
-        y_coordinates.append(coordinates[0]['y'])
-        return x_coordinates, y_coordinates
+        # close polygon drawing by adding coordinate[0]
+        x_coords += [coordinates[0]['x']]
+        y_coords += [coordinates[0]['y']]
+        return x_coords, y_coords
 
 
     

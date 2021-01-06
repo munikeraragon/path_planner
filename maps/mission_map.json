@@ -7,6 +7,10 @@
     "latitude": 38.145111,
     "longitude": -76.427861
   },
+  "startPoint": {
+    "latitude": 38.1446916666667,
+    "longitude": -76.4279944444445
+  },
   "stationaryObstacles": [
     {
       "latitude": 38.146689,

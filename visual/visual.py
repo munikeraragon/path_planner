@@ -16,13 +16,12 @@ class Visual():
   def draw(self):
     # plot map features
     self.plot_obstacles()
-    self.plot_waypoints()
+    self.plot_way_points()
     self.plot_boundary()
-    #plt.show()
 
   def simulate(self, algorithm):
     plt.grid(True)
-    algorithm.run(plt)
+    final_path = algorithm.run(plt)
     plt.show()
 
 
@@ -31,21 +30,21 @@ class Visual():
   ''' 
 
   def plot_boundary(self):
-    xCoords, yCoords = self.map.boundary()
-    plt.plot(xCoords, yCoords)
+    x_coords, y_coords = self.map.boundary()
+    plt.plot(x_coords, y_coords)
     plt.grid(True)
     plt.axis("equal")
     
-  def plot_waypoints(self):
-    x_coordinates, y_coordinates =  self.map.waypoints()
-    plt.plot(x_coordinates, y_coordinates)
+  def plot_way_points(self):
+    x_coords, y_coords =  self.map.way_points()
+    plt.plot(x_coords, y_coords)
     plt.grid(True)
     plt.axis("equal")
 
   def plot_obstacles(self):
-    x_coordinates, y_coordinates, radii = self.map.obstacles()
+    x_coords, y_coords, radii = self.map.obstacles()
     fig, ax = plt.subplots()
     for i in range(len(radii)):
-        circle = plt.Circle((x_coordinates[i],y_coordinates[i]), radii[i])
+        circle = plt.Circle((x_coords[i],y_coords[i]), radii[i])
         ax.set_aspect(1)
         ax.add_artist(circle)
