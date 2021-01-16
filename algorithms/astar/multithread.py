@@ -24,38 +24,38 @@ class Astar:
             self.parent_key = parent_key
         
     
-    def __str__(self):
-        return str(self.x) + "," + str(self.y) + "," + str(self.cost) + "," + str(self.parent_key)
+        def __str__(self):
+            return str(self.x) + "," + str(self.y) + "," + str(self.cost) + "," + str(self.parent_key)
 
 
-    def run(self, plt):
+    def run(self, _):
         '''
-            This method initiates the planning algorithim by breaking the 
-            waypoints into segmets and running Astart asyncroniously in each segment.
+            Initiate algorithim by breaking the waypoints
+            into segmets and running Astart asyncroniously.
 
         '''
 
         x_coords, y_coords = self.map.way_points()
         way_points = np.array(list(zip(x_coords, y_coords)))
 
-        x_start, y_start = self.map.start_point()
+        x_start, y_start = way_points[0][0], way_points[0][1]
         x_start, y_start = self.base_rounding(x_start, y_start, self.base)
 
 
         threads = []
-        segment_path = [[]]*len(way_points)
+        segment_path = [list() for i in range(len(way_points))]
 
         for i, point in enumerate(way_points):
             x_target, y_target = self.base_rounding(point[0], point[1], self.base)
 
             try:
-                x = threading.Thread(target=self.run_segment, args=(plt, x_start, y_start, x_target, y_target, segment_path[i]))
+                x = threading.Thread(target=self.run_segment, args=(x_start, y_start, x_target, y_target, segment_path[i]))
                 threads += [x]
                 x.start()
             except Exception as e:
                 print ("Error: unable to start thread")
                 print(e)
-
+        
             
             # updates starting postion to be used in the next segment
             x_start = x_target
@@ -63,21 +63,19 @@ class Astar:
         
 
         for i, thread in enumerate(threads):
-            #print('Main Thread: joinin thread %d') % i
             thread.join() 
 
         print('Main thread exited')
-        self.plot_final_route(plt, segment_path)
         return segment_path
 
 
 
 
     
-    def run_segment(self, plt, x_start, y_start, x_target, y_target, segment_path):
+    def run_segment(self, x_start, y_start, x_target, y_target, segment_path):
         '''
-            This method executes Astar algorithim starting from
-            (x_start, y_start) and ending at (x_target, y_target). 
+            Execute Astar algorithim starting from
+            (x_start, y_start) to (x_target, y_target). 
         '''
 
         visited_nodes = dict()
@@ -95,11 +93,11 @@ class Astar:
 
             self.inspect_neighbords(current_node, priority_queue, visited_nodes)
 
-
             # check if destination has been reached
             if current_node.x == x_target and current_node.y == y_target:
-                self.create_segment_path(current_node, visited_nodes, segment_path)
-                print('goal has been reached')
+                l = self.create_segment_path(current_node, visited_nodes)
+                l.reverse()
+                segment_path += l
                 break
 
         
@@ -140,20 +138,12 @@ class Astar:
         return True
 
 
-    def create_segment_path(self, node, visited_nodes, segment_path):
+    def create_segment_path(self, node, visited_nodes):
         if node.parent_key is None:
-            return
+            return [ [node.x, node.y] ]
 
-        segment_path += [[node.x, node.y]]
-        self.create_segment_path(visited_nodes[node.parent_key], visited_nodes, segment_path)
-
-
-
-    def plot_final_route(self, plt, path):
-        for segment in path:
-            for point in segment:
-                plt.plot(point[0], point[1], 'xc')
-                plt.pause(0.001)
+    
+        return [[node.x, node.y]] + self.create_segment_path(visited_nodes[node.parent_key], visited_nodes)
 
 
     def boundary_path(self):
