@@ -28,7 +28,7 @@ class Astar:
             return str(self.x) + "," + str(self.y) + "," + str(self.cost) + "," + str(self.parent_key)
 
 
-    def run(self, _):
+    def run(self, dinamic_plot=False):
         '''
             Initiate algorithim by breaking the waypoints
             into segmets and running Astart asyncroniously.

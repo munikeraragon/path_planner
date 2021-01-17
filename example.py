@@ -38,7 +38,7 @@ def main(algo, thread):
     
     simulator = Simulator(loader)
     simulator.draw() 
-    print(simulator.simulate(algo, headless=False))
+    print(simulator.simulate(algo, headless=True))
 
 
 

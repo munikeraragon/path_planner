@@ -26,7 +26,7 @@ class Dijkstra:
         def __str__(self):
             return str(self.x) + "," + str(self.y) + "," + str(self.cost) + "," + str(self.parent_key)
 
-    def run(self, _):
+    def run(self, dinamic_plot=False):
         '''
             This method initiates the planning algorithim by breaking the 
             waypoints into segmets and running Dijkstra asyncroniously in each segment.
