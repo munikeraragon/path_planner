@@ -23,11 +23,11 @@ class Simulator():
             return segments
         else:
             plt.grid(True)
-            segments = algorithm.run(self.dinamic_plot)
+            segments = algorithm.run(self.dynamic_plot)
             self.plot_final_path(segments)
             return segments
 
-    def dinamic_plot(self, x, y, color):
+    def dynamic_plot(self, x, y, color):
         '''
               Callback function used to plot coordinates while an algorithim is running.
         '''
