@@ -20,12 +20,12 @@ class Simulator():
         '''
         if headless:
             segments = algorithm.run()
-            return segments
+            return self.map.unproject_coordinates(segments)
         else:
             plt.grid(True)
             segments = algorithm.run(self.dynamic_plot)
             self.plot_final_path(segments)
-            return segments
+            return self.map.unproject_coordinates(segments)
 
     def dynamic_plot(self, x, y, color):
         '''
